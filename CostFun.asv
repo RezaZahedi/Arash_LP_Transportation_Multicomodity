@@ -5,16 +5,9 @@ B = 8;
 V = -1;
 G = 8;
 
-% % B:
-% B = B_finalFun(M, N, K, U, T);
-% 
-% % A:
-% A = A_finalFun(M, N, K, U, U_P, T);
-% 
-% if sum((A*x' - B) ~= 0) > 1
-%     z = Inf;
-%     return;
-% end
+
+if sum((A*x' - B) ~= 0) > 1
+    z = Inf
 
 
 f = repelem(C, M*N*K*U*T);

@@ -1,7 +1,6 @@
-
 clear
 clc
-tic;
+
 % initial values and dimentions:
 M = 3;
 N = 3;
@@ -25,29 +24,16 @@ x0(1, 1081:1440) = round(A2\Beq)';
 
 %% linear programming:
 % fitness function
-C = 4;
-P = 2;
-B = 8;
-V = -1;
-G = 8;
-f = repelem(C, M*N*K*U*T);
-f = horzcat(f, repelem(G, M*N*K*U*U_P*T));
-f = horzcat(f, repelem(P, M*N*K*U*(T-1)));
-f = horzcat(f, repelem(B, M*N*K*U));
-f = horzcat(f, repelem(0, N*K*U*(T-1)));
-f = horzcat(f, repelem(V, N*K*U));
+fun = @(x) CostFun(x, M, N, K, U, U_P, T);
 
 
 lb = zeros(1, length(Aeq));
 ub = ones(1, length(Aeq)) * 2000;
-IntCon = 1:1440;
 
+options = optimoptions('patternsearch',...
+    'Display','iter','PlotFcn',@psplotbestf);
 
-options = optimoptions(@intlinprog,'OutputFcn',@savemilpsolutions,'PlotFcn',@optimplotmilp);
-
-[x, fval] = intlinprog(f,IntCon,[],[],Aeq,Beq,lb,ub,x0,options)
-
-time = toc
+[x, fval] = patternsearch(fun,x0,[],[],Aeq,Beq,lb,ub,[],options)
 %% pattern search:
 % % fitness function
 % fun = @(x) CostFun(x, M, N, K, U, U_P, T);
