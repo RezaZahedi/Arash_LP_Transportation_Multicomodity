@@ -81,25 +81,29 @@ for m = 1:M
                         colNum = T*U*K*N*M +  m + (n-1)*M + (k-1)*N*M + ...
                             + (u-1)*K*N*M + (u_p-1)*U*K*N*M +...
                             + (t-1)*U_P*U*K*N*M;
-                        A(rowNum, colNum) = 1;
-                        A(rowNum + 1, colNum) = -1;
+%                         A(rowNum, colNum) = 1;
+%                         A(rowNum + 1, colNum) = -1;
+                        A(rowNum, colNum) = -1;
                     end
                     % end of "E" coef.
                     
                     % assigning "W" coef.
                     colNum = T*U*K*N*M*(1+U_P) + m + (n-1)*M + ...
                         + (k-1)*N*M + (u-1)*K*N*M + (t-1)*U*K*N*M;
-                    A(rowNum, colNum) = 1;
-                    A(rowNum + 1, colNum) = -1;
+%                     A(rowNum, colNum) = 1;
+%                     A(rowNum + 1, colNum) = -1;
+                    A(rowNum, colNum) = -1;
                     
                     if t > 1
                         colNum = T*U*K*N*M*(1+U_P) + m + (n-1)*M +...
                             + (k-1)*N*M + (u-1)*K*N*M + (t - 1 - 1)*U*K*N*M;
-                        A(rowNum, colNum) = -1;
-                        A(rowNum + 1, colNum) = 1;
+%                         A(rowNum, colNum) = -1;
+%                         A(rowNum + 1, colNum) = 1;
+                        A(rowNum, colNum) = 1;
                     end
                     % end of "W" coef.
-                    rowNum = rowNum + 2;
+%                     rowNum = rowNum + 2;
+                    rowNum = rowNum + 1;
                 end
             end
         end

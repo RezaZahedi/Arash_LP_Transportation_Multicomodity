@@ -16,8 +16,10 @@ end
 D_initial = D_initialFun();
 
 for i = 1:length(D_initial)
-    aux(2*i-1, 1) = D_initial(i) + tol;
-    aux(2*i, 1) = -D_initial(i) + tol;
+%     aux(2*i-1, 1) = D_initial(i) + tol;
+%     aux(2*i, 1) = -D_initial(i) + tol;
+
+    aux(i, 1) = -D_initial(i) + tol;
 end
 
 B = vertcat(B, aux);
