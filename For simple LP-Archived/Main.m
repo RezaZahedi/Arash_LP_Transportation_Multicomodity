@@ -1,39 +1,62 @@
+
 clear
 clc
 
+tic;
 % initial values and dimentions:
-M = 3;
-N = 3;
-K = 2;
-U = 3;
-U_P = 3;
-T = 5;
+M = 100;
+N = 100;
+K = 1;
+U = 8;
+U_P = 8;
+T = 15;
 
 % B:
 %B = B_finalFun(M, N, K, U, T);
 Beq = B_finalFun(M, N, K, U, T);
 
+t = toc();
+t
+tic;
 % A:
 % A = A_finalFun(M, N, K, U, U_P, T);
 Aeq = A_finalFun(M, N, K, U, U_P, T);
-
+t = toc;
+t
 % finging initial solution
-A2=Aeq(:,1081:1440);
-x0 = zeros(1,1440);
-x0(1, 1081:1440) = round(A2\Beq)';
+size = size(Aeq);
+A2=Aeq(:,(size(2)-size(1)+1):size(2));
+x0 = zeros(1,size(2));
+x0(1, (size(2)-size(1)+1):size(2)) = round(A2\Beq)';
 
 %% linear programming:
 % fitness function
-fun = @(x) CostFun(x, M, N, K, U, U_P, T);
+tic;
+
+C = 4;
+P = 2;
+B = 8;
+V = -1;
+G = 8;
+f = repelem(C, M*N*K*U*T);
+f = horzcat(f, repelem(G, M*N*K*U*U_P*T));
+f = horzcat(f, repelem(P, M*N*K*U*(T-1)));
+f = horzcat(f, repelem(B, M*N*K*U));
+f = horzcat(f, repelem(0, N*K*U*(T-1)));
+f = horzcat(f, repelem(V, N*K*U));
 
 
 lb = zeros(1, length(Aeq));
 ub = ones(1, length(Aeq)) * 2000;
+IntCon = 1:length(Aeq);
 
-options = optimoptions('patternsearch',...
-    'Display','iter','PlotFcn',@psplotbestf);
 
-[x, fval] = patternsearch(fun,x0,[],[],Aeq,Beq,lb,ub,[],options)
+options = optimoptions(@intlinprog,'OutputFcn',@savemilpsolutions,'PlotFcn',@optimplotmilp);
+
+[x, fval] = intlinprog(f,IntCon,[],[],Aeq,Beq,lb,ub,x0,options);
+fval
+
+time = toc
 %% pattern search:
 % % fitness function
 % fun = @(x) CostFun(x, M, N, K, U, U_P, T);
@@ -51,12 +74,12 @@ options = optimoptions('patternsearch',...
 %% Genetic algorytm:
 
 % FitnessFunction = @(x) CostFun(x, M, N, K, U, U_P, T);
-% numberOfVariables = 1440;
+% numberOfVariables = length(A);
 % 
 % lb = zeros(1, length(A));
 % ub = ones(1, length(A)) * 60;
 
-% IntCon = 1:1440;
+% IntCon = 1:length(A);
 % 
 % % 'InitialPopulationRange', [0;200],...
 
