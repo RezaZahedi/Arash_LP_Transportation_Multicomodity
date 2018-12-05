@@ -3,98 +3,110 @@ clear
 clc
 
 tic;
-% initial values and dimentions:
-M = 100;
-N = 100;
-K = 1;
-U = 8;
-U_P = 8;
-T = 15;
 
+% initial values and dimentions:
+M = 3;
+N = 3;
+K = 2;
+U = 3;
+U_P = 3;
+T = 5;
+
+% creating A and B matrices:
 % B:
 %B = B_finalFun(M, N, K, U, T);
-Beq = B_finalFun(M, N, K, U, T);
+B = B_finalFun(M, N, K, U, T);
 
-t = toc();
-t
+tB = toc();
+tB
 tic;
 % A:
 % A = A_finalFun(M, N, K, U, U_P, T);
-Aeq = A_finalFun(M, N, K, U, U_P, T);
-t = toc;
-t
-% finging initial solution
-size = size(Aeq);
-A2=Aeq(:,(size(2)-size(1)+1):size(2));
-x0 = zeros(1,size(2));
-x0(1, (size(2)-size(1)+1):size(2)) = round(A2\Beq)';
+A = A_finalFun(M, N, K, U, U_P, T);
+tA = toc;
+tA
 
-%% linear programming:
-% fitness function
+% removing equality constraints:
+[m, n] = size(A);
+% deviding A into AL and AR (A left and A right), A = [AL AR]:
+AL = A(:, 1:(n-m));
+AR = A(:, (n-m+1):n);
+
+% X = [U D]'
+% D = inv(AR) * B - inv(AR) * L * U ==>> D = D1 - D2 * U :
+D1 = AR\B;
+D2 = AR\AL;
+
+
+%% Genetic algorytm:
+f = Cost_initial(M, N, K, U, U_P, T);
+
+FitnessFunction = @(Upper) CostFun(Upper, D1, D2, f);
+numberOfVariables = n-m;
+
+% 'InitialPopulationRange', [0;200],...
+pop = 2600;
+lb = zeros(1, n-m);
+% ub = 5;
+% opts = optimoptions(@ga, ...
+%     'PopulationSize', pop, ...
+%     'MaxGenerations', 200, ...
+%     'EliteCount', pop*.05, ...
+%     'InitialPopulationMatrix', lb,...
+%     'UseVectorized', false, ...
+%     'PlotFcn', @gaplotbestf)
+% 
+% [x, fval] = GA_optim(FitnessFunction,numberOfVariables,lb,ub,opts);
+% 
+% fval
+x0 = lb;
 tic;
+i = 0
+fval = FitnessFunction(x0)
+toc
+opts = optimoptions(@ga, ...
+        'PopulationSize', pop, ...
+        'MaxGenerations', 200, ...
+        'EliteCount', pop*.05, ...
+        'UseVectorized', true, ...
+        'CrossoverFraction',.1,...
+        'PlotFcn', @gaplotbestf);
+for(i = 1:31:31)
+    ub = i;
+    
+    opts = optimoptions(@ga, ...
+        'PopulationSize', pop, ...
+        'MaxGenerations', 200, ...
+        'EliteCount', pop*.05, ...
+        'InitialPopulationMatrix', x0,...
+        'UseVectorized', true, ...
+        'CrossoverFraction',.95,...
+        'PlotFcn', @gaplotbestf);
+    
+    [x, fval] = GA_optim(FitnessFunction,numberOfVariables,lb,ub,opts);
+    
+    
+    
+    x0 = x;
+    
+    i
+    fval
+    toc
+end
+tGA = toc
 
-C = 4;
-P = 2;
-B = 8;
-V = -1;
-G = 8;
-f = repelem(C, M*N*K*U*T);
-f = horzcat(f, repelem(G, M*N*K*U*U_P*T));
-f = horzcat(f, repelem(P, M*N*K*U*(T-1)));
-f = horzcat(f, repelem(B, M*N*K*U));
-f = horzcat(f, repelem(0, N*K*U*(T-1)));
-f = horzcat(f, repelem(V, N*K*U));
-
-
-lb = zeros(1, length(Aeq));
-ub = ones(1, length(Aeq)) * 2000;
-IntCon = 1:length(Aeq);
-
-
-options = optimoptions(@intlinprog,'OutputFcn',@savemilpsolutions,'PlotFcn',@optimplotmilp);
-
-[x, fval] = intlinprog(f,IntCon,[],[],Aeq,Beq,lb,ub,x0,options);
-fval
-
-time = toc
 %% pattern search:
-% % fitness function
-% fun = @(x) CostFun(x, M, N, K, U, U_P, T);
+% % % fitness function
+% f = Cost_initial(M, N, K, U, U_P, T);
+% 
+% fun = @(Upper) CostFun(Upper, D1, D2, f);
 % 
 % 
-% lb = zeros(1, length(Aeq));
-% ub = ones(1, length(Aeq)) * 2000;
+% lb = zeros(1, n-m);
+% ub = ones(1, n-m) * 31;
 % 
 % options = optimoptions('patternsearch',...
 %     'Display','iter','PlotFcn',@psplotbestf);
 % 
-% [x, fval] = patternsearch(fun,x0,[],[],Aeq,Beq,lb,ub,[],options)
-% % 
-
-%% Genetic algorytm:
-
-% FitnessFunction = @(x) CostFun(x, M, N, K, U, U_P, T);
-% numberOfVariables = length(A);
-% 
-% lb = zeros(1, length(A));
-% ub = ones(1, length(A)) * 60;
-
-% IntCon = 1:length(A);
-% 
-% % 'InitialPopulationRange', [0;200],...
-
-% opts = optimoptions(@ga, ...
-%     'PopulationSize', 5000, ...
-%     'InitialPopulationMatrix', x0,...
-%     'MaxGenerations', 200, ...
-%     'EliteCount', 100, ...
-%     'CrossoverFraction', .8,...
-%     'FunctionTolerance', 1e-8, ...
-%     'UseVectorized', true, ...
-%     'PlotFcn', @gaplotbestf)
-% 
-% 
-% [x,fval] = ga(FitnessFunction, numberOfVariables, A, B, [], [], lb, ub,...
-%    [], IntCon, opts);
-% 
+% [x, fval] = patternsearch(fun,lb,[],[],[],[],lb,ub,[],options);
 % fval

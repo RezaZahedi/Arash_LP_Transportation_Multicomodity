@@ -4,12 +4,12 @@ clc
 
 tic;
 % initial values and dimentions:
-M = 100;
-N = 100;
-K = 1;
-U = 8;
-U_P = 8;
-T = 15;
+M = 3;
+N = 3;
+K = 2;
+U = 3;
+U_P = 3;
+T = 5;
 
 % B:
 %B = B_finalFun(M, N, K, U, T);

@@ -1,7 +1,7 @@
 function z = CostFun(x, M, N, K, U, U_P, T)
 C = 4;
 P = 2;
-B = 8;
+B = 100;
 V = -1;
 G = 8;
 
